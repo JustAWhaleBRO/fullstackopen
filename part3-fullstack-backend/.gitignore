@@ -1,7 +1,4 @@
 node_modules
-dist
-!part3/dist
 .DS_Store
 .env
 *.log
-.claude
