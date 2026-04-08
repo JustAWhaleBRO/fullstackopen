@@ -51,8 +51,8 @@ const App = () => {
         setTimeout(() => {
           setErrorMessage(null)
         }, 5000)
+        setNotes(notes.filter(n => n.id !== id))
       })
-    setNotes(notes.filter(n => n.id !== id))
   }
 
   const notesToShow = showAll ? notes : notes.filter((note) => note.important)
