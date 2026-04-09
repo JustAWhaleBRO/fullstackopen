@@ -1,5 +1,6 @@
 node_modules
 dist
+!part1-backend/dist
 !part3/dist
 .DS_Store
 .env
