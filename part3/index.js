@@ -1,5 +1,36 @@
+require('dotenv').config()
 const express = require('express')
-const cors = require('cors')
+const mongoose = require('mongoose')
+const Note = require('./models/note')
+
+if (process.argv.length < 3) {
+    console.log('give password as argument')
+    process.exit(1)
+}
+
+const password = process.argv[2]
+
+const url = `mongodb+srv://fullstack:${password}@cluster0.huzrtbt.mongodb.net/noteApp?retryWrites=true&w=majority&appName=Cluster0`
+
+mongoose.set('strictQuery', false)
+
+mongoose.connect(url, { family: 4 })
+
+const noteSchema = new mongoose.Schema({
+    content: String,
+    important: Boolean
+})
+
+noteSchema.set('toJSON', {
+    transform: (document, returnedObject) => {
+        returnedObject.id = returnedObject._id.toString()
+        delete returnedObject._id
+        delete returnedObject.__v
+    }
+})
+
+const Note = mongoose.model('Note', noteSchema)
+
 const app = express()
 
 app.use(express.json())
@@ -29,7 +60,9 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/notes', (request, response) => {
-    response.json(notes)
+    Note.find({}).then(notes => {
+        response.json(notes)
+    })
 })
 
 app.get('/api/notes/:id', (req, res) => {
@@ -75,7 +108,7 @@ app.post('/api/notes', (req, res) => {
     res.json(note)
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
