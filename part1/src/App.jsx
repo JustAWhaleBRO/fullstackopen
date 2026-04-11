@@ -34,26 +34,26 @@ const App = () => {
         personService.update(existingPerson.id, personObject)
           .then(updatedPerson => {
             setPersons(persons.map(
-              person => person.id !== existingPerson.id 
-                ? person 
+              person => person.id !== existingPerson.id
+                ? person
                 : updatedPerson
             ))
-          showNotification(`Updated ${updatedPerson.name}`, 'success')
+            showNotification(`Updated ${updatedPerson.name}`, 'success')
           })
           .catch(() => {
             showNotification(`Information of ${existingPerson.name} has already been removed from server`, 'error')
           })
       }
     } else {
-    const personObject = { name: newName, number: newNumber }
-    personService.create(personObject)
-      .then(newPerson => {
-        setPersons(persons => persons.concat(newPerson))
-        showNotification(`Added ${newPerson.name}`, 'success')
-      })
-      .catch(() => {
-        showNotification(`Failed to add ${newName}`, 'error')
-      })
+      const personObject = { name: newName, number: newNumber }
+      personService.create(personObject)
+        .then(newPerson => {
+          setPersons(persons => persons.concat(newPerson))
+          showNotification(`Added ${newPerson.name}`, 'success')
+        })
+        .catch(() => {
+          showNotification(`Failed to add ${newName}`, 'error')
+        })
     }
 
     setNewName('')
@@ -88,13 +88,13 @@ const App = () => {
     setSearchTerm(event.target.value)
   }
 
-  const showNotification = (text, type='success') => {
+  const showNotification = (text, type = 'success') => {
     setNotification({ text, type })
     setTimeout(() => {
       setNotification(null)
-      }, 5000) 
+    }, 5000)
   }
-  
+
   const personsToShow = searchTerm === ''
     ? persons
     : persons.filter(person =>
@@ -110,19 +110,19 @@ const App = () => {
 
       <h2>add a new</h2>
 
-      <PersonForm 
-          addNewPerson={addNewPerson}
-          newName={newName}
-          handlePersonChange={handlePersonChange}
-          newNumber={newNumber}
-          handleNumberChange={handleNumberChange}
+      <PersonForm
+        addNewPerson={addNewPerson}
+        newName={newName}
+        handlePersonChange={handlePersonChange}
+        newNumber={newNumber}
+        handleNumberChange={handleNumberChange}
       />
 
       <h2>Numbers</h2>
 
-      <Person 
-        personsToShow={personsToShow} 
-        deletePerson={deletePerson} 
+      <Person
+        personsToShow={personsToShow}
+        deletePerson={deletePerson}
       />
     </div>
   )

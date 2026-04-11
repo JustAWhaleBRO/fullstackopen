@@ -1,59 +1,20 @@
 require('dotenv').config()
 const express = require('express')
-const mongoose = require('mongoose')
 const Note = require('./models/note')
-
-if (process.argv.length < 3) {
-    console.log('give password as argument')
-    process.exit(1)
-}
-
-const password = process.argv[2]
-
-const url = `mongodb+srv://fullstack:${password}@cluster0.huzrtbt.mongodb.net/noteApp?retryWrites=true&w=majority&appName=Cluster0`
-
-mongoose.set('strictQuery', false)
-
-mongoose.connect(url, { family: 4 })
-
-const noteSchema = new mongoose.Schema({
-    content: String,
-    important: Boolean
-})
-
-noteSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id.toString()
-        delete returnedObject._id
-        delete returnedObject.__v
-    }
-})
-
-const Note = mongoose.model('Note', noteSchema)
 
 const app = express()
 
 app.use(express.json())
-app.use(cors())
 app.use(express.static('dist'))
 
-let notes = [
-    {
-        id: "1",
-        content: "HTML is easy",
-        important: true
-    },
-    {
-        id: "2",
-        content: "Browser can execute only JavaScript",
-        important: false
-    },
-    {
-        id: "3",
-        content: "GET and POST are the most important methods of HTTP protocol",
-        important: true
-    }
-]
+const requestLogger = (request, response, next) => {
+    console.log('Method:', request.method)
+    console.log('Path:  ', request.path)
+    console.log('Body:  ', request.body)
+    console.log('---')
+    next()
+}
+app.use(requestLogger)
 
 app.get('/', (request, response) => {
     response.send('<h1>Hello World!</h1>')
@@ -65,28 +26,26 @@ app.get('/api/notes', (request, response) => {
     })
 })
 
-app.get('/api/notes/:id', (req, res) => {
+app.get('/api/notes/:id', (req, res, next) => {
     const id = req.params.id
-    const note = notes.find(note => note.id === id)
-    if (note) {
-        res.json(note)
-    } else {
-        res.status(404).end()
-    }
+    Note.findById(id)
+        .then(note => {
+            if (note) {
+                res.json(note)
+            } else {
+                res.status(400).end()
+            }
+        })
+        .catch(err => next(err))
 })
 
 app.delete('/api/notes/:id', (req, res) => {
     const id = req.params.id
-    notes = notes.filter(note => note.id !== id)
-    res.status(204).end()
+    Note.findByIdAndDelete(id)
+        .then((result) => {
+            res.status(204).end()
+        })
 })
-
-const generateId = () => {
-    const maxId = notes.length > 0
-        ? Math.max(...notes.map(n => Number(n.id)))
-        : 0
-    return String(maxId + 1)
-}
 
 app.post('/api/notes', (req, res) => {
     const body = req.body
@@ -97,16 +56,51 @@ app.post('/api/notes', (req, res) => {
         })
     }
 
-    const note = {
+    const note = new Note({
         content: body.content,
         important: body.important || false,
-        id: generateId(),
+    })
+
+    note.save().then(savedNote => {
+        res.json(savedNote)
+    })
+})
+
+app.put('/api/notes/:id', (req, res, next) => {
+    const { content, important } = req.body
+
+    Note.findById(req.params.id)
+        .then(note => {
+            if (!note) {
+                return res.status(404).end()
+            }
+
+            note.content = content
+            note.important = important
+
+            return note.save().then(updatedNote => {
+                res.json(updatedNote)
+            })
+        })
+        .catch(e => next(e))
+})
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+}
+
+const errorHandler = (err, req, res, next) => {
+    console.error(err.message)
+
+    if (err.name === 'CastError') {
+        return res.status(400).send({ error: 'malformatted id' })
     }
 
-    notes = notes.concat(note)
+    next(err)
+}
 
-    res.json(note)
-})
+app.use(unknownEndpoint)
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
