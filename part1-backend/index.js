@@ -82,18 +82,17 @@ app.put('/api/persons/:id', (req, res, next) => {
     const id = req.params.id
     const { name, number } = req.body
 
-    Person.findById(id)
-        .then(person => {
-            if (!person) {
+
+    Person.findByIdAndUpdate(
+        id,
+        { name, number },
+        { returnDocument: 'after', runValidators: true }
+    )
+        .then(updatedPerson => {
+            if (!updatedPerson) {
                 return res.status(404).end()
             }
-
-            person.name = name
-            person.number = number
-
-            return person.save().then(savedPerson => {
-                res.json(savedPerson)
-            })
+            return res.json(updatedPerson)
         })
         .catch(e => next(e))
 })
