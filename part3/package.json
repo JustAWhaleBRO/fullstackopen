@@ -10,6 +10,7 @@
     "start": "node index.js",
     "dev": "node --watch index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
     "build:ui": "rm -rf dist && cd ../part2 && npm run build && cp -r dist ../part3",
     "deploy:full": "npm run build:ui && git add . && git commit -m \"uibuild\" && git push"
   },
@@ -21,8 +22,13 @@
     "morgan": "^1.10.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@eslint/json": "^1.2.0",
+    "@stylistic/eslint-plugin": "^5.10.0",
     "@types/express": "^5.0.6",
     "@types/mongoose": "^5.11.96",
-    "@types/node": "^25.6.0"
+    "@types/node": "^25.6.0",
+    "eslint": "^10.2.0",
+    "globals": "^17.5.0"
   }
 }

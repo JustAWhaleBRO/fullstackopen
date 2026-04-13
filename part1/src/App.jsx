@@ -51,8 +51,8 @@ const App = () => {
           setPersons(persons => persons.concat(newPerson))
           showNotification(`Added ${newPerson.name}`, 'success')
         })
-        .catch(() => {
-          showNotification(`Failed to add ${newName}`, 'error')
+        .catch(err => {
+          showNotification(err.response.data.error, 'error')
         })
     }
 
