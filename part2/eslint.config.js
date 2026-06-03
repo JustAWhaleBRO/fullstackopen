@@ -23,6 +23,7 @@ export default defineConfig([
       },
     },
     rules: {
+      'indent': ['error', 2],
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
