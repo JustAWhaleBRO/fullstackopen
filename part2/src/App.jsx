@@ -4,6 +4,9 @@ import Note from './components/Note'
 import noteService from './services/notes'
 import loginService from './services/login'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
+import LoginForm from './components/LoginForm'
+import NoteForm from './components/NoteForm'
 
 const App = () => {
   const [notes, setNotes] = useState([])
@@ -13,7 +16,6 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-
   useEffect(() => {
     noteService.getAll().then(initialNotes => {
       setNotes(initialNotes)
@@ -90,37 +92,26 @@ const App = () => {
 
   const notesToShow = showAll ? notes : notes.filter((note) => note.important)
 
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      <div>
-        <label>
-          username
-          <input
-            type="text"
-            value={username}
-            onChange={({ target }) => setUsername(target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          password
-          <input
-            type="password"
-            value={password}
-            onChange={({ target }) => setPassword(target.value)}
-          />
-        </label>
-      </div>
-      <button type="submit">login</button>
-    </form>
+  const noteForm = () => (
+    <Togglable buttonLabel='new note'>
+      <NoteForm
+        onSubmit={addNote}
+        value={newNote}
+        handleChange={handleNoteChange}
+      />
+    </Togglable>
   )
 
-  const noteForm = () => (
-    <form onSubmit={addNote}>
-      <input value={newNote} onChange={handleNoteChange} />
-      <button type="submit">save</button>
-    </form>
+  const loginForm = () => (
+    <Togglable buttonLabel='login'>
+      <LoginForm
+        username={username}
+        password={password}
+        setUsername={({ target }) => setUsername(target.value)}
+        setPassword={({ target }) => setPassword(target.value)}
+        handleLogin={handleLogin}
+      />
+    </Togglable>
   )
 
   return (
