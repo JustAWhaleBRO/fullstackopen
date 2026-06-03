@@ -1,19 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
+import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
+import CreateForm from './components/BlogCreateForm'
+import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
-  const [blogTitle, setBlogTitle] = useState('')
-  const [blogAuthor, setBlogAuthor] = useState('')
-  const [blogUrl, setBlogUrl] = useState('')
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -30,18 +28,14 @@ const App = () => {
     }
   }, [])
 
-  const handleLogin = async event => {
-    event.preventDefault()
-
+  const handleLogin = async credentials => {
     try {
-      const user = await loginService.login({ username, password })
+      const user = await loginService.login(credentials)
       window.localStorage.setItem(
         'loggedBlogUser', JSON.stringify(user)
       )
       blogService.setToken(user.token)
       setUser(user)
-      setUsername('')
-      setPassword('')
     } catch (err) {
       console.log(err)
       setErrorMessage('Wrong Crendentials!')
@@ -60,24 +54,18 @@ const App = () => {
     }, 5000)
   }
 
-  const createBlog = async event => {
-    event.preventDefault()
+  const loginForm = () => (
+    <LoginForm handleLogin={handleLogin} />
+  )
 
+  const createBlog = async blogObj => {
     try {
-      const blogObject = {
-        title: blogTitle,
-        author: blogAuthor,
-        url: blogUrl
-      }
-
-      const resp = await blogService.create(blogObject)
+      createFormRef.current.toggleVisibility()
+      const resp = await blogService.create(blogObj)
       setBlogs(blogs.concat(resp))
-      setSuccessMessage(`a new blog ${blogTitle} by ${blogAuthor} added`)
-      setBlogTitle('')
-      setBlogAuthor('')
-      setBlogUrl('')
+      setSuccessMessage(`a new blog ${blogObj.blogTitle} by ${blogObj.blogAuthor} added`)
       setTimeout(() => {
-        setSuccessMessage(null)
+        setErrorMessage(null)
       }, 5000)
     } catch (e) {
       setErrorMessage('Failed to add blog')
@@ -88,73 +76,12 @@ const App = () => {
     }
   }
 
-  const loginForm = () => (
-    <div>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>
-            username:
-            <input
-              type='text'
-              value={username}
-              onChange={({ target }) => setUsername(target.value)}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            password:
-            <input
-              type='password'
-              value={password}
-              onChange={({ target }) => setPassword(target.value)}
-            />
-          </label>
-        </div>
-        <button type='submit'>login</button>
-      </form>
-    </div>
-  )
+  const createFormRef = useRef()
 
   const createForm = () => (
-    <div>
-      <h2>Create New</h2>
-      <div>
-        <form onSubmit={createBlog}>
-          <div>
-            <label>
-              title:
-              <input
-                type='text'
-                value={blogTitle}
-                onChange={({ target }) => setBlogTitle(target.value)}
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              author:
-              <input
-                type='text'
-                value={blogAuthor}
-                onChange={({ target }) => setBlogAuthor(target.value)}
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              url:
-              <input
-                type='text'
-                value={blogUrl}
-                onChange={({ target }) => setBlogUrl(target.value)}
-              />
-            </label>
-          </div>
-          <button type='submit'>create blog</button>
-        </form>
-      </div>
-    </div>
+    <Togglable buttonLabel='create new blog' ref={createFormRef}>
+      <CreateForm createBlog={createBlog} />
+    </Togglable>
   )
 
   if (user === null) {
