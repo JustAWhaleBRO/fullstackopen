@@ -1,43 +1,43 @@
 import { useState } from 'react'
 
 const LoginForm = ({ handleLogin }) => {
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
 
-    const login = async event => {
-        event.preventDefault()
-        handleLogin({ username, password })
-        setUsername('')
-        setPassword('')
-    }
+  const login = async event => {
+    event.preventDefault()
+    handleLogin({ username, password })
+    setUsername('')
+    setPassword('')
+  }
 
-    return (
+  return (
+    <div>
+      <form onSubmit={login}>
         <div>
-            <form onSubmit={login}>
-                <div>
-                    <label>
+          <label>
                         username:
-                        <input
-                            type='text'
-                            value={username}
-                            onChange={({ target }) => setUsername(target.value)}
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        password:
-                        <input
-                            type='password'
-                            value={password}
-                            onChange={({ target }) => setPassword(target.value)}
-                        />
-                    </label>
-                </div>
-                <button type='submit'>login</button>
-            </form>
+            <input
+              type='text'
+              value={username}
+              onChange={({ target }) => setUsername(target.value)}
+            />
+          </label>
         </div>
-    )
+        <div>
+          <label>
+                        password:
+            <input
+              type='password'
+              value={password}
+              onChange={({ target }) => setPassword(target.value)}
+            />
+          </label>
+        </div>
+        <button type='submit'>login</button>
+      </form>
+    </div>
+  )
 }
 
 export default LoginForm
