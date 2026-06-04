@@ -1,8 +1,6 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
-const User = require('../models/user')
 const middleware = require('../utils/middleware')
-const jwt = require('jsonwebtoken')
 
 blogRouter.get('/', async (req, res) => {
     const blogs = await Blog
@@ -26,6 +24,7 @@ blogRouter.post('/', middleware.userExtractor, async (req, res) => {
         user: user._id
     })
     const savedBlog = await blog.save()
+    await savedBlog.populate('user', { username: 1, name: 1 })
 
     user.blogs = user.blogs.concat(blog)
     await user.save()
@@ -59,7 +58,8 @@ blogRouter.put('/:id', async (req, res) => {
         req.params.id,
         blog,
         { runValidators: true, returnDocument: 'after' }
-    )
+    ).populate('user', { username: 1, name: 1 })
+
     if (updatedBlog) {
         res.json(updatedBlog)
     } else {

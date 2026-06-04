@@ -76,6 +76,18 @@ const App = () => {
     }
   }
 
+  const updateBlog = async blogObj => {
+    const resp = await blogService.update(blogObj)
+    setBlogs(blogs.map(blog => (
+      blog.id !== blogObj.id ? blog : resp
+    )))
+  }
+
+  const deleteBlog = async blogId => {
+    await blogService.deleteBlog(blogId)
+    setBlogs(blogs.filter(blog => blog.id !== blogId))
+  }
+
   const createFormRef = useRef()
 
   const createForm = () => (
@@ -95,6 +107,11 @@ const App = () => {
       </div>
     )
   }
+
+  const sortedBlogs = [...blogs].sort((a, b) => (
+    b.likes - a.likes
+  ))
+
   return (
     <div>
       <h2>Blogs</h2>
@@ -105,8 +122,14 @@ const App = () => {
         <button onClick={handleLogout}>logout</button>
       </p>
       {createForm()}
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+      {sortedBlogs.map(blog =>
+        <Blog
+          key={blog.id}
+          blog={blog}
+          blogOwnerId={user.id}
+          updateBlog={updateBlog}
+          deleteBlog={deleteBlog}
+        />
       )}
     </div>
   )
