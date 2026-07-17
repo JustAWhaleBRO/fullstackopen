@@ -8,7 +8,7 @@ const loginForm = ({
   <form onSubmit={handleLogin}>
     <div>
       <label>
-                username
+        username
         <input
           type="text"
           value={username}
@@ -18,7 +18,7 @@ const loginForm = ({
     </div>
     <div>
       <label>
-                password
+        password
         <input
           type="password"
           value={password}

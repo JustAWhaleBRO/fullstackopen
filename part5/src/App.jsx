@@ -103,7 +103,6 @@ const App = () => {
         <Notification message={errorMessage} type="error" />
         <Notification message={successMessage} type="success" />
         {loginForm()}
-
       </div>
     )
   }
